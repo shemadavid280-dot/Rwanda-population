@@ -1,0 +1,3 @@
+const router=require('express').Router(),pool=require('../config/db'),{requireAuth}=require('../middleware/auth');
+router.get('/audit-logs',requireAuth,async(req,res)=>{if(!['admin','national_admin','viewer'].includes(req.user.role))return res.status(403).json({success:false,message:'Permission denied.'});try{const [logs]=await pool.query('SELECT a.id,a.action,a.entity_type,a.entity_id,a.details,a.created_at,u.username FROM audit_logs a LEFT JOIN users u ON u.id=a.user_id ORDER BY a.created_at DESC LIMIT 200');res.json({success:true,logs});}catch{res.status(500).json({success:false,message:'Could not load audit logs.'});}});
+module.exports=router;
